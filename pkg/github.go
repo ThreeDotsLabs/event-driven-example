@@ -19,6 +19,7 @@ type githubPayload struct {
 	} `json:"commits"`
 }
 
+// GithubWebhookHandler receives GitHub webhooks and translates each commit details into a commitPushed event.
 func GithubWebhookHandler(msg *message.Message) ([]*message.Message, error) {
 	payload := githubPayload{}
 	err := json.Unmarshal(msg.Payload, &payload)

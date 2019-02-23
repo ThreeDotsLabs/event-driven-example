@@ -43,6 +43,7 @@ func GrafanaMarshaller(credentials string) http.MarshalMessageFunc {
 	}
 }
 
+// GrafanaHandler receives an event and translates it into an annotation payload compatible with Grafana REST API.
 func GrafanaHandler(msg *message.Message) ([]*message.Message, error) {
 	eventType := msg.Metadata.Get("event_type")
 	params, err := grafanaParamsByType(eventType, msg.Payload)

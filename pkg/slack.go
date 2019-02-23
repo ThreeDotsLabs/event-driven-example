@@ -26,6 +26,7 @@ func SlackMarshaller(url string, msg *message.Message) (*http.Request, error) {
 	return req, nil
 }
 
+// SlackHandler receives an event and translates it into a message payload compatible with Slack REST API.
 func SlackHandler(msg *message.Message) ([]*message.Message, error) {
 	eventType := msg.Metadata.Get("event_type")
 	text, err := slackTextByType(eventType, msg.Payload)

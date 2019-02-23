@@ -9,11 +9,13 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
+// DeploySimulator simulates deployment messages for each commitPushed event.
 type DeploySimulator struct {
 	Env   string
 	Delay time.Duration
 }
 
+// Handle receives a commitPushed event, waits for chosen duration and produces a commitDeployed event.
 func (d DeploySimulator) Handle(msg *message.Message) ([]*message.Message, error) {
 	if msg.Metadata.Get("event_type") != "commitPushed" {
 		return nil, nil

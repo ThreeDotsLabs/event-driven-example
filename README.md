@@ -1,8 +1,12 @@
 # Event-Driven application example
 
-This is an example project of building Event-Driven services in Go, using [Watermill](https://github.com/ThreeDotsLabs/watermill).
+This is an example Event-Driven application written in Go, using [Watermill](https://github.com/ThreeDotsLabs/watermill).
 
-In addition to the application, the environment consists of:
+The projects aims to integrate incoming GitHub webhooks with Grafana and Slack, essentially adding annotations and
+sending messages when a new commit is pushed. There are also simulated deployment messages sent over RabbitMQ to
+demonstrate working with multiple event streams.
+
+In addition to the application, the docker-compose environment consists of:
 
 * **Kafka** and **ZooKeeper**
 * **RabbitMQ**

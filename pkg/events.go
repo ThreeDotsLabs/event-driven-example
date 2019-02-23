@@ -1,11 +1,5 @@
 package pkg
 
-type deploymentPayload struct {
-	CommitID  string `json:"commit_id"`
-	Env       string `json:"env"`
-	Timestamp string `json:"timestamp"`
-}
-
 type commitPushed struct {
 	ID         string `json:"id"`
 	Message    string `json:"message"`

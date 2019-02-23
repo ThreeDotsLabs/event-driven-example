@@ -25,6 +25,7 @@ func main() {
 	}
 	router.AddMiddleware(middleware.Recoverer)
 
+	// Metrics setup
 	prometheusRegistry, closeMetricsServer := metrics.CreateRegistryAndServeHTTP(config.MetricsBindAddr)
 	defer closeMetricsServer()
 	metricsBuilder := metrics.NewPrometheusMetricsBuilder(prometheusRegistry, "", "")
@@ -159,6 +160,7 @@ func setupRouter(router *message.Router, c pkg.Config, logger watermill.LoggerAd
 	}
 
 	go func() {
+		// Start HTTP server only after the router is running
 		<-router.Running()
 		err = httpSubscriber.StartHTTPServer()
 		if err != nil {
