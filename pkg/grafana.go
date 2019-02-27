@@ -14,17 +14,18 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message/infrastructure/http"
 )
 
-type grafanaParams struct {
-	OccurredOn string
-	Text       string
-	Tags       []string
-}
-
+// See: http://docs.grafana.org/http_api/annotations/#create-annotation
 type grafanaAnnotationsPayload struct {
 	Text    string   `json:"text"`
 	Tags    []string `json:"tags"`
 	Time    int64    `json:"time"`
 	TimeEnd int64    `json:"timeEnd"`
+}
+
+type grafanaParams struct {
+	OccurredOn string
+	Text       string
+	Tags       []string
 }
 
 func GrafanaMarshaller(credentials string) http.MarshalMessageFunc {

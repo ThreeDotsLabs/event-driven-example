@@ -11,6 +11,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
+// See: https://api.slack.com/incoming-webhooks
 type slackMessagePayload struct {
 	Text string `json:"text"`
 }

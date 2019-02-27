@@ -8,7 +8,9 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
-type githubPayload struct {
+// githubPushEvent represents a part of GitHub PushEvent webhook.
+// See: https://developer.github.com/v3/activity/events/types/#pushevent
+type githubPushEvent struct {
 	Commits []struct {
 		ID        string `json:"id"`
 		Message   string `json:"message"`
@@ -21,16 +23,16 @@ type githubPayload struct {
 
 // GithubWebhookHandler receives GitHub webhooks and translates each commit details into a commitPushed event.
 func GithubWebhookHandler(msg *message.Message) ([]*message.Message, error) {
-	payload := githubPayload{}
-	err := json.Unmarshal(msg.Payload, &payload)
+	pushEvent := githubPushEvent{}
+	err := json.Unmarshal(msg.Payload, &pushEvent)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("Received GitHub Webhook:", payload)
+	log.Println("Received GitHub Webhook:", pushEvent)
 
 	var messages []*message.Message
-	for _, commit := range payload.Commits {
+	for _, commit := range pushEvent.Commits {
 		event := commitPushed{
 			ID:         commit.ID,
 			Message:    commit.Message,
