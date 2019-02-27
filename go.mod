@@ -1,4 +1,4 @@
-module github.com/m110/webhooks
+module github.com/ThreeDotsLabs/event-driven-example
 
 require (
 	github.com/DataDog/zstd v1.3.5 // indirect
