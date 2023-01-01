@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/ThreeDotsLabs/event-driven-example/pkg"
 
 	"github.com/ThreeDotsLabs/watermill"
@@ -30,7 +31,7 @@ func main() {
 		panic(err)
 	}
 
-	err = router.Run()
+	err = router.Run(context.Background())
 	if err != nil {
 		panic(err)
 	}
