@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
+	"github.com/ThreeDotsLabs/watermill-http/v2/pkg/http"
+	"github.com/ThreeDotsLabs/watermill-kafka/v2/pkg/kafka"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/message/infrastructure/amqp"
-	"github.com/ThreeDotsLabs/watermill/message/infrastructure/http"
-	"github.com/ThreeDotsLabs/watermill/message/infrastructure/kafka"
 )
 
 func SetupRouter(router *message.Router, c Config, logger watermill.LoggerAdapter) error {
@@ -32,22 +32,23 @@ func SetupRouter(router *message.Router, c Config, logger watermill.LoggerAdapte
 	}
 
 	kafkaPublisher, err := kafka.NewPublisher(
-		c.KafkaBrokers,
-		kafka.DefaultMarshaler{},
-		nil,
-		logger)
+		kafka.PublisherConfig{
+			Brokers:   c.KafkaBrokers,
+			Marshaler: kafka.DefaultMarshaler{},
+		},
+		logger,
+	)
 	if err != nil {
 		return err
 	}
 
-	kafkaConfig := kafka.SubscriberConfig{
-		Brokers: c.KafkaBrokers,
-	}
 	kafkaSubscriber, err := kafka.NewSubscriber(
-		kafkaConfig,
-		nil,
-		kafka.DefaultMarshaler{},
-		logger)
+		kafka.SubscriberConfig{
+			Brokers:     c.KafkaBrokers,
+			Unmarshaler: kafka.DefaultMarshaler{},
+		},
+		logger,
+	)
 	if err != nil {
 		return err
 	}
