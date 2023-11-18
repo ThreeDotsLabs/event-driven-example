@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
+
 	"github.com/Furkan-Gulsen/Event-Driven-Architecture-with-Golang/config"
+	"github.com/Furkan-Gulsen/Event-Driven-Architecture-with-Golang/internal"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/components/metrics"
 	"github.com/ThreeDotsLabs/watermill/message"
@@ -9,6 +12,9 @@ import (
 )
 
 func main() {
+	// Create a new context and add a cancel function to it.
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	// Create a new logger.
 	logger := watermill.NewStdLogger(false, false)
@@ -26,5 +32,21 @@ func main() {
 	defer closeMetricsServer()
 	metricsBuilder := metrics.NewPrometheusMetricsBuilder(prometheusRegistry, "", "")
 	metricsBuilder.AddPrometheusRouterMetrics(router)
+
+	// Setup the router.
+	r := &internal.Router{
+		Router: router,
+		Logger: logger,
+		Config: c,
+	}
+	err = r.SetupRouter()
+	if err != nil {
+		panic(err)
+	}
+
+	// Run the router.
+	if err := router.Run(ctx); err != nil {
+		panic(err)
+	}
 
 }
