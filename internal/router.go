@@ -2,8 +2,11 @@ package internal
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/Furkan-Gulsen/Event-Driven-Architecture-with-Golang/config"
+	"github.com/Furkan-Gulsen/Event-Driven-Architecture-with-Golang/pkg"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
 	"github.com/ThreeDotsLabs/watermill-http/pkg/http"
@@ -77,27 +80,99 @@ func (r *Router) SetupKafka() (message.Publisher, message.Subscriber, error) {
 }
 
 // * SetupGrafana creates a new Grafana publisher and subscriber.
-func (r *Router) SetupGrafana() error {
-	return nil
+func (r *Router) SetupGrafana() (message.Publisher, error) {
+	grafanaPublisher, err := http.NewPublisher(
+		http.PublisherConfig{
+			MarshalMessageFunc: pkg.GrafanaMarshaller(r.Config.GrafanaCredentials),
+		}, r.Logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create Grafana publisher: %w", err)
+	}
+
+	return grafanaPublisher, nil
 }
 
 func (r *Router) SetupRouter() error {
-	// amqpPublisher, amqpSubscriber, err := r.SetupAmqp()
-	// if err != nil {
-	// 	return err
-	// }
+	amqpPublisher, amqpSubscriber, err := r.SetupAmqp()
+	if err != nil {
+		return err
+	}
 
-	// httpSubscriber, err := r.SetupHttpSubscriber()
-	// if err != nil {
-	// 	return err
-	// }
+	httpSubscriber, err := r.SetupHttpSubscriber()
+	if err != nil {
+		return err
+	}
 
-	// kafkaPublisher, kafkaSubscriber, err := r.SetupKafka()
-	// if err != nil {
-	// 	return err
-	// }
+	kafkaPublisher, kafkaSubscriber, err := r.SetupKafka()
+	if err != nil {
+		return err
+	}
 
-	// grafanaPublisher, err := r.SetupGrafana()
+	grafanaPublisher, err := r.SetupGrafana()
+	if err != nil {
+		return err
+	}
+
+	r.Router.AddHandler(
+		"http-to-kafka",
+		"/",
+		httpSubscriber,
+		r.Config.KafkaTopic,
+		kafkaPublisher,
+		pkg.GithubWebhookHandler,
+	)
+
+	r.Router.AddHandler(
+		"rabbitmq-to-kafka",
+		r.Config.AMQPQueue,
+		amqpSubscriber,
+		r.Config.KafkaTopic,
+		kafkaPublisher,
+		pkg.AMQPHandler,
+	)
+
+	r.Router.AddHandler(
+		"kafka-to-grafana",
+		r.Config.KafkaTopic,
+		kafkaSubscriber,
+		r.Config.GrafanaURL+"/api/annotations",
+		grafanaPublisher,
+		pkg.GrafanaHandler,
+	)
+
+	stagingDelay := time.Second * time.Duration(rand.Intn(60)+30)
+	productionDelay := stagingDelay + time.Second*time.Duration(rand.Intn(120)+60)
+
+	r.Router.AddHandler(
+		"deploy-staging-simulator",
+		r.Config.KafkaTopic,
+		kafkaSubscriber,
+		r.Config.AMQPQueue,
+		amqpPublisher,
+		pkg.DeploySimulator{Env: "staging", Delay: stagingDelay}.Handle,
+	)
+
+	r.Router.AddHandler(
+		"deploy-production-simulator",
+		r.Config.KafkaTopic,
+		kafkaSubscriber,
+		r.Config.AMQPQueue,
+		amqpPublisher,
+		pkg.DeploySimulator{Env: "production", Delay: productionDelay}.Handle,
+	)
+
+	go func() {
+		httpSub, ok := httpSubscriber.(*http.Subscriber)
+		if !ok {
+			panic("invalid subscriber type")
+		}
+
+		<-r.Router.Running()
+		err = httpSub.StartHTTPServer()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	return nil
 }
