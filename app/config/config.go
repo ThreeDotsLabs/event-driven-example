@@ -31,6 +31,8 @@ type Config struct {
 
 	KafkaBrokers []string
 	KafkaTopic   string
+
+	SlackWebhookURL string
 }
 
 func LoadConfig() Config {
@@ -46,6 +48,8 @@ func LoadConfig() Config {
 
 		GrafanaURL:         getEnv("GRAFANA_URL", defaultGrafanaURL),
 		GrafanaCredentials: getEnv("GRAFANA_CREDENTIALS", defaultGrafanaCredentials),
+
+		SlackWebhookURL: getEnv("SLACK_WEBHOOK_URL", ""),
 	}
 }
 

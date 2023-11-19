@@ -1,4 +1,4 @@
-module github.com/Furkan-Gulsen/Event-Driven-Architecture-with-Golang
+module github.com/ThreeDotsLabs/event-driven-example
 
 go 1.21
 

@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/Furkan-Gulsen/Event-Driven-Architecture-with-Golang/config"
-	"github.com/Furkan-Gulsen/Event-Driven-Architecture-with-Golang/pkg"
+	"github.com/ThreeDotsLabs/event-driven-example/config"
+	"github.com/ThreeDotsLabs/event-driven-example/pkg"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-amqp/pkg/amqp"
 	"github.com/ThreeDotsLabs/watermill-http/pkg/http"
@@ -140,6 +140,26 @@ func (r *Router) SetupRouter() error {
 		pkg.GrafanaHandler,
 	)
 
+	if r.Config.SlackWebhookURL != "" {
+		slackPublisher, err := http.NewPublisher(
+			http.PublisherConfig{
+				MarshalMessageFunc: pkg.SlackMarshaller,
+			}, r.Logger)
+		if err != nil {
+			return err
+		}
+
+		r.Router.AddHandler(
+			"kafka-to-slack",
+			r.Config.KafkaTopic,
+			kafkaSubscriber,
+			r.Config.SlackWebhookURL,
+			slackPublisher,
+			pkg.SlackHandler,
+		)
+	}
+
+	// * DeploySimulator is a handler that simulates a deployment to a given environment.
 	stagingDelay := time.Second * time.Duration(rand.Intn(60)+30)
 	productionDelay := stagingDelay + time.Second*time.Duration(rand.Intn(120)+60)
 

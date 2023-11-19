@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 
-	"github.com/Furkan-Gulsen/Event-Driven-Architecture-with-Golang/config"
-	"github.com/Furkan-Gulsen/Event-Driven-Architecture-with-Golang/internal"
+	"github.com/ThreeDotsLabs/event-driven-example/config"
+	"github.com/ThreeDotsLabs/event-driven-example/internal"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/components/metrics"
 	"github.com/ThreeDotsLabs/watermill/message"
