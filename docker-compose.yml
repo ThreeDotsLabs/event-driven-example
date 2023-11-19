@@ -1,0 +1,66 @@
+version: '3'
+services:
+  myapp:
+    build: ./myapp
+    restart: on-failure
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    depends_on:
+      - kafka
+      - rabbitmq
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_storage:/var/lib/grafana
+      - ./metrics/grafana/provisioning:/etc/grafana/provisioning/dashboards
+      - ./metrics/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./metrics/grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: secret
+    logging:
+      driver: none
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    restart: on-failure
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    logging:
+      driver: none
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    restart: on-failure
+    logging:
+      driver: none
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+
+  rabbitmq:
+    image: rabbitmq:latest
+    restart: on-failure
+    ports:
+      - 5672:5672
+    logging:
+      driver: none
+
+  prometheus:
+    image: prom/prometheus
+    restart: on-failure
+    volumes:
+      - ./metrics/prometheus.yml:/etc/prometheus/prometheus.yml
+    logging:
+      driver: none
+
+volumes:
+  grafana_storage: {}

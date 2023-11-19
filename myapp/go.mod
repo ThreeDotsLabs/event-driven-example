@@ -1,6 +1,6 @@
 module github.com/Furkan-Gulsen/Event-Driven-Architecture-with-Golang
 
-go 1.21.3
+go 1.21
 
 require (
 	github.com/ThreeDotsLabs/watermill v1.3.5
