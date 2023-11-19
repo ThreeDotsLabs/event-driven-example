@@ -10,11 +10,10 @@ import (
 	"time"
 
 	"github.com/ThreeDotsLabs/watermill"
+	"github.com/ThreeDotsLabs/watermill-http/pkg/http"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/message/infrastructure/http"
 )
 
-// See: http://docs.grafana.org/http_api/annotations/#create-annotation
 type grafanaAnnotationsPayload struct {
 	Text    string   `json:"text"`
 	Tags    []string `json:"tags"`
@@ -28,6 +27,7 @@ type grafanaParams struct {
 	Tags       []string
 }
 
+// * GrafanaMarshaller creates a new HTTP marshaller for Grafana
 func GrafanaMarshaller(credentials string) http.MarshalMessageFunc {
 	return func(url string, msg *message.Message) (*stdHttp.Request, error) {
 		req, err := stdHttp.NewRequest(stdHttp.MethodPost, url, bytes.NewBuffer(msg.Payload))
@@ -44,7 +44,7 @@ func GrafanaMarshaller(credentials string) http.MarshalMessageFunc {
 	}
 }
 
-// GrafanaHandler receives an event and translates it into an annotation payload compatible with Grafana REST API.
+// * GrafanaHandler creates a new handler for Grafana
 func GrafanaHandler(msg *message.Message) ([]*message.Message, error) {
 	eventType := msg.Metadata.Get("event_type")
 	params, err := grafanaParamsByType(eventType, msg.Payload)
@@ -77,10 +77,11 @@ func GrafanaHandler(msg *message.Message) ([]*message.Message, error) {
 	return []*message.Message{m}, nil
 }
 
+// * grafanaParamsByType returns Grafana parameters by event type
 func grafanaParamsByType(eventType string, payload []byte) (grafanaParams, error) {
 	switch eventType {
 	case "commitPushed":
-		event := commitPushed{}
+		event := CommitPushed{}
 		err := json.Unmarshal(payload, &event)
 		if err != nil {
 			return grafanaParams{}, err
@@ -92,7 +93,7 @@ func grafanaParamsByType(eventType string, payload []byte) (grafanaParams, error
 			Tags:       []string{"pushed"},
 		}, nil
 	case "commitDeployed":
-		event := commitDeployed{}
+		event := CommitDeployed{}
 		err := json.Unmarshal(payload, &event)
 		if err != nil {
 			return grafanaParams{}, err

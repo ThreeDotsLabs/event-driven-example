@@ -1,17 +1,15 @@
 version: '3'
 services:
   app:
-    image: golang:1.11
+    build: ./app
     restart: on-failure
     ports:
       - 8080:8080
-    volumes:
-      - .:/app
-      - $GOPATH/pkg/mod:/go/pkg/mod
-    working_dir: /app
-    command: bash -c "./scripts/wait.sh kafka:9092 rabbitmq:5672 grafana:3000 && go run ./cmd"
     env_file:
       - .env
+    depends_on:
+      - kafka
+      - rabbitmq
 
   grafana:
     image: grafana/grafana
@@ -46,10 +44,10 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
 
   rabbitmq:
-    image: rabbitmq:3.7
+    image: rabbitmq:latest
     restart: on-failure
     ports:
       - 5672:5672
@@ -60,7 +58,7 @@ services:
     image: prom/prometheus
     restart: on-failure
     volumes:
-     - ./metrics/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./metrics/prometheus.yml:/etc/prometheus/prometheus.yml
     logging:
       driver: none
 

@@ -8,8 +8,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
-// githubPushEvent represents a part of GitHub PushEvent webhook.
-// See: https://developer.github.com/v3/activity/events/types/#pushevent
+// * CommitPushed is the event that is sent when a commit is pushed to GitHub
 type githubPushEvent struct {
 	Commits []struct {
 		ID        string `json:"id"`
@@ -21,7 +20,7 @@ type githubPushEvent struct {
 	} `json:"commits"`
 }
 
-// GithubWebhookHandler receives GitHub webhooks and translates each commit details into a commitPushed event.
+// * GithubWebhookHandler handles GitHub webhook events
 func GithubWebhookHandler(msg *message.Message) ([]*message.Message, error) {
 	pushEvent := githubPushEvent{}
 	err := json.Unmarshal(msg.Payload, &pushEvent)
@@ -33,7 +32,7 @@ func GithubWebhookHandler(msg *message.Message) ([]*message.Message, error) {
 
 	var messages []*message.Message
 	for _, commit := range pushEvent.Commits {
-		event := commitPushed{
+		event := CommitPushed{
 			ID:         commit.ID,
 			Message:    commit.Message,
 			Author:     commit.Author.Name,

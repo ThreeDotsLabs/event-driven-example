@@ -1,4 +1,4 @@
-package pkg
+package config
 
 import (
 	"os"
@@ -23,14 +23,14 @@ type Config struct {
 	BindAddr        string
 	MetricsBindAddr string
 
+	GrafanaURL         string
+	GrafanaCredentials string
+
 	AMQPURI   string
 	AMQPQueue string
 
 	KafkaBrokers []string
 	KafkaTopic   string
-
-	GrafanaURL         string
-	GrafanaCredentials string
 
 	SlackWebhookURL string
 }

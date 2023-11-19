@@ -9,19 +9,19 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 )
 
-// DeploySimulator simulates deployment messages for each commitPushed event.
+// * DeploySimulator simulates deployment messages for each commitPushed event.
 type DeploySimulator struct {
 	Env   string
 	Delay time.Duration
 }
 
-// Handle receives a commitPushed event, waits for chosen duration and produces a commitDeployed event.
+// * Handle receives a commitPushed event, waits for chosen duration and produces a commitDeployed event.
 func (d DeploySimulator) Handle(msg *message.Message) ([]*message.Message, error) {
 	if msg.Metadata.Get("event_type") != "commitPushed" {
 		return nil, nil
 	}
 
-	event := commitPushed{}
+	event := CommitPushed{}
 	err := json.Unmarshal(msg.Payload, &event)
 	if err != nil {
 		return nil, err

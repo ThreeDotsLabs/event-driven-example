@@ -14,7 +14,6 @@ type deploymentPayload struct {
 	Timestamp string `json:"timestamp"`
 }
 
-// AMQPHandler receives a deployment message over AMQP and translates it into a commitDeployed event.
 func AMQPHandler(msg *message.Message) ([]*message.Message, error) {
 	payload := deploymentPayload{}
 	err := json.Unmarshal(msg.Payload, &payload)
@@ -24,7 +23,7 @@ func AMQPHandler(msg *message.Message) ([]*message.Message, error) {
 
 	log.Println("Received AMQP message: ", payload)
 
-	event := commitDeployed{
+	event := CommitDeployed{
 		ID:         payload.CommitID,
 		Env:        payload.Env,
 		OccurredOn: payload.Timestamp,

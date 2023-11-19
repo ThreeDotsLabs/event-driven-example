@@ -1,4 +1,4 @@
-# Event-Driven application example
+# Event Driven Architecture with Golang (Example)
 
 This is an example Event-Driven application written in Go, using [Watermill](https://github.com/ThreeDotsLabs/watermill).
 
@@ -8,7 +8,7 @@ demonstrate working with multiple event streams.
 
 ![](https://threedots.tech/media/event-driven-applications/diagram.png)
 
-An example result can look like this: 
+An example result can look like this:
 
 ![](https://threedots.tech/media/event-driven-applications/grafana.png)
 
@@ -21,10 +21,10 @@ webhook URL in `SLACK_WEBHOOK_URL` variable.
 
 In addition to the application, the docker-compose environment consists of:
 
-* **Kafka** and **ZooKeeper**
-* **RabbitMQ**
-* **Grafana**
-* **Prometheus**
+- **Kafka** and **ZooKeeper**
+- **RabbitMQ**
+- **Grafana**
+- **Prometheus**
 
 The whole environment can be run with:
 
